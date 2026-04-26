@@ -2,25 +2,27 @@ package dam.a51564.mip2
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ProgressBar
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
+import dam.a51564.mip2.adapter.DogImageAdapter
 import dam.a51564.mip2.viewmodel.DogViewModel
 
 /**
- * Single-screen Activity that displays a random dog image
- * and lets the user refresh it.
+ * Main Activity displaying a grid of random dog images and a breed filter.
  *
- * See docs/03_screens.md and docs/06_architecture.md – View Layer.
+ * See docs/03_screens.md and docs/09_feature_extensions.md.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -39,9 +41,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         // ── View references ──
-        val toolbar      = findViewById<MaterialToolbar>(R.id.toolbar)
-        val imageViewDog = findViewById<ImageView>(R.id.imageViewDog)
-        val progressBar  = findViewById<ProgressBar>(R.id.progressBar)
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        val spinnerBreeds = findViewById<Spinner>(R.id.spinnerBreeds)
+        val recyclerViewDogs = findViewById<RecyclerView>(R.id.recyclerViewDogs)
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
         val buttonRefresh = findViewById<MaterialButton>(R.id.buttonRefresh)
 
         // ── Toolbar ──
@@ -50,14 +53,41 @@ class MainActivity : AppCompatActivity() {
         // ── ViewModel ──
         viewModel = ViewModelProvider(this)[DogViewModel::class.java]
 
-        // ── Observe image URL ──
-        viewModel.dogImageUrl.observe(this) { url ->
-            Glide.with(this)
-                .load(url)
-                .transition(DrawableTransitionOptions.withCrossFade(300))
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .error(R.drawable.ic_launcher_foreground)
-                .into(imageViewDog)
+        // ── Grid Setup ──
+        val adapter = DogImageAdapter()
+        recyclerViewDogs.layoutManager = GridLayoutManager(this, 2)
+        recyclerViewDogs.adapter = adapter
+
+        // ── Observe Dog Images ──
+        viewModel.dogImages.observe(this) { images ->
+            adapter.updateImages(images)
+        }
+
+        // ── Setup and Observe Spinner ──
+        val spinnerAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item)
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerBreeds.adapter = spinnerAdapter
+
+        viewModel.breeds.observe(this) { breedList ->
+            spinnerAdapter.clear()
+            spinnerAdapter.addAll(breedList)
+            // Preserve selection
+            viewModel.selectedBreed.value?.let { current ->
+                val pos = breedList.indexOf(current)
+                if (pos >= 0) spinnerBreeds.setSelection(pos)
+            }
+        }
+
+        // ── Listen for Spinner Selection ──
+        spinnerBreeds.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selected = spinnerAdapter.getItem(position)
+                if (selected != null) {
+                    viewModel.setBreed(selected)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         // ── Observe error messages ──
@@ -72,7 +102,7 @@ class MainActivity : AppCompatActivity() {
 
         // ── Refresh button ──
         buttonRefresh.setOnClickListener {
-            viewModel.fetchRandomDogImage()
+            viewModel.fetchImages()
         }
     }
 }
