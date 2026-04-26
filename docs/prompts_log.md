@@ -64,3 +64,10 @@ Constructed `DogImageAdapter.kt` integrating Glide loading operations and seamle
 `The app is now fully functional with the grid and breed filter. Please review the whole project structure one last time to ensure it matches the requirements in docs/ and agents.md. Then, help me update my README.md to match everything i currently have and create a file prompts_log.md inside docs/ that contains the main prompts used for the creation of the project. following an example like this...`
 **Result:**
 Reviewed the repository for strict Kotlin UI, MVVM enforcement and Documentation alignment. Updated `README.md` and synthesized this `prompts_log.md` covering the entire workflow from origin to grid extension.
+
+## Prompt 10
+**Goal:** Final Project Cleanup and Code Audit.
+**Prompt used:**
+`The implementation of the Breed Filter and Grid Layout extension is finished. Before I make my final project commit, please perform a comprehensive Project Clean-Up: Code Audit... Resource Audit... Architecture Check... Update Log...`
+**Result:**
+Safely removed the legacy `DogResponse` model entirely, stripped out unused string resources and endpoints, explicitly verified MVVM encapsulation rules, and removed legacy fallback logic from the `DogViewModel`. Added this final prompt to complete the session log.

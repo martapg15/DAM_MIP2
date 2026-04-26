@@ -13,24 +13,26 @@ This app consumes the **[Dog CEO API](https://dog.ceo/dog-api)**, a free, open R
 
 ## Features
 
-- Fetch a random dog image on launch.
-- Display the image in a clean, single-screen UI.
-- Refresh button to load a new random dog image.
+- Fetch and display a dynamic grid of random dog images on launch.
+- Filter the displayed dogs by specific breeds using a sleek drop-down menu.
+- Uniform, square-cropped images (1:1 ratio) gracefully handled within a `RecyclerView`.
+- Refresh button to seamlessly load a newly randomized batch of images for the selected category.
+- Modern beige materialized theme implementation.
 
 ## Architecture
 
 The app follows the **MVVM (Model-View-ViewModel)** pattern:
 
-- **Model** – Kotlin data classes representing the API response.
-- **ViewModel** – Handles business logic and API calls via Retrofit.
-- **View** – A single `MainActivity` with an XML layout.
+- **Model** – Kotlin data classes representing the API response (`BreedListResponse`, `DogListResponse`).
+- **ViewModel** – Reactively handles business logic, breed filtering, and API calls via Retrofit using Coroutines and LiveData.
+- **View** – A single `MainActivity` with meticulously crafted XML layouts and dynamic grid Adapters.
 
 ## Tech Stack
 
 | Layer        | Library / Tool  |
 |--------------|-----------------|
 | Language     | Kotlin          |
-| UI           | XML Views       |
+| UI           | XML Views, RecyclerView |
 | Networking   | Retrofit + OkHttp |
 | Image Loading| Glide           |
 | Architecture | MVVM + LiveData |
@@ -48,7 +50,9 @@ MIP2/
 │   ├── 05_navigation.md
 │   ├── 06_architecture.md
 │   ├── 07_api_usage.md
-│   └── 08_implementation_plan.md
+│   ├── 08_implementation_plan.md
+│   ├── 09_feature_extensions.md
+│   └── prompts_log.md
 ├── agents.md
 └── README.md
 ```
@@ -81,6 +85,12 @@ All detailed documentation lives in the `/docs` folder. Read it in order before 
 6. [Architecture](docs/06_architecture.md)
 7. [API Usage](docs/07_api_usage.md)
 8. [Implementation Plan](docs/08_implementation_plan.md)
+9. [Feature Extensions](docs/09_feature_extensions.md)
+10. [Prompts Log](docs/prompts_log.md)
+
+## Validation
+
+✅ **Project Architecture Verified:** This project has been fully audited against the specifications inside `agents.md` and successfully conforms to pure MVVM standards utilizing precise Kotlin classes without Jetpack Compose usage.
 
 ## License
 
