@@ -8,52 +8,94 @@ import dam.a51564.mip2.repository.DogRepository
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel that exposes the dog image URL and error state as LiveData.
- * Auto-fetches on creation; the View can trigger additional fetches
- * via [fetchRandomDogImage].
- *
- * See docs/06_architecture.md – ViewModel Layer.
+ * ViewModel handling state for multiple dog images and breed filtering.
  */
 class DogViewModel : ViewModel() {
 
     private val repository = DogRepository()
 
-    /** Holds the most recent image URL. */
+    // Deprecated single image URL temporarily kept if UI hasn't fully migrated
     private val _dogImageUrl = MutableLiveData<String>()
     val dogImageUrl: LiveData<String> = _dogImageUrl
 
-    /** Holds a user-facing error message (null when no error). */
+    /** Holds the list of dog image URLs for the grid */
+    private val _dogImages = MutableLiveData<List<String>>()
+    val dogImages: LiveData<List<String>> = _dogImages
+
+    /** Holds the list of available breeds loaded from the API */
+    private val _breeds = MutableLiveData<List<String>>()
+    val breeds: LiveData<List<String>> = _breeds
+
+    /** The currently selected breed ("Random" by default) */
+    private val _selectedBreed = MutableLiveData<String>("Random")
+    val selectedBreed: LiveData<String> = _selectedBreed
+
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
 
-    /** Loading state so the UI can show/hide a progress indicator. */
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
     init {
-        fetchRandomDogImage()
+        fetchBreeds()
+        fetchImages()
     }
 
-    /**
-     * Launches a coroutine that fetches a random dog image from the
-     * repository and posts the result to [_dogImageUrl] on success,
-     * or an error string to [_errorMessage] on failure.
-     */
-    fun fetchRandomDogImage() {
+    /** Called when the user selects a new breed from the Dropdown/Spinner */
+    fun setBreed(breed: String) {
+        if (_selectedBreed.value != breed) {
+            _selectedBreed.value = breed
+            fetchImages()
+        }
+    }
+
+    /** Fetches the required images based on the currently selected breed */
+    fun fetchImages() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response = repository.getRandomDog()
+                val currentBreed = _selectedBreed.value ?: "Random"
+                val response = if (currentBreed == "Random") {
+                    repository.getMultipleRandomDogs(20) // Let's fetch 20 for a nice grid
+                } else {
+                    repository.getDogsByBreed(currentBreed, 20)
+                }
+
                 if (response.status == "success") {
-                    _dogImageUrl.value = response.message
+                    _dogImages.value = response.message
+                    if (response.message.isNotEmpty()) {
+                        _dogImageUrl.value = response.message.first()
+                    }
                 } else {
                     _errorMessage.value = "API returned status: ${response.status}"
                 }
             } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Unknown error occurred"
+                _errorMessage.value = e.message ?: "Unknown error occurred while fetching images"
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    /** Fetches the full list of breeds once on startup */
+    private fun fetchBreeds() {
+        viewModelScope.launch {
+            try {
+                val response = repository.getBreedList()
+                if (response.status == "success") {
+                    val breedList = mutableListOf("Random")
+                    // The API returns a Map where keys are breed names
+                    breedList.addAll(response.message.keys.sorted())
+                    _breeds.value = breedList
+                }
+            } catch (e: Exception) {
+                // If breeds fail to load, we still have "Random" by default
+            }
+        }
+    }
+
+    /** Legacy method kept for UI compatibility until Step 5 */
+    fun fetchRandomDogImage() {
+        fetchImages()
     }
 }
