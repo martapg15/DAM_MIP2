@@ -2,5 +2,4 @@
     <string name="app_name">Dog Image Browser</string>
     <string name="refresh">Refresh</string>
     <string name="dog_image_description">Random dog image</string>
-    <string name="error_loading">Failed to load image. Please try again.</string>
 </resources>

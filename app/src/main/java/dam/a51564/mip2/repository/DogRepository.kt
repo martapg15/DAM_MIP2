@@ -2,7 +2,6 @@ package dam.a51564.mip2.repository
 
 import dam.a51564.mip2.model.BreedListResponse
 import dam.a51564.mip2.model.DogListResponse
-import dam.a51564.mip2.model.DogResponse
 import dam.a51564.mip2.network.RetrofitInstance
 
 /**
@@ -11,10 +10,6 @@ import dam.a51564.mip2.network.RetrofitInstance
 class DogRepository {
 
     private val api = RetrofitInstance.api
-
-    suspend fun getRandomDog(): DogResponse {
-        return api.getRandomDogImage()
-    }
 
     suspend fun getMultipleRandomDogs(count: Int): DogListResponse {
         return api.getMultipleRandomDogs(count)

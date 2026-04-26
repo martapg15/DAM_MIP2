@@ -14,10 +14,6 @@ class DogViewModel : ViewModel() {
 
     private val repository = DogRepository()
 
-    // Deprecated single image URL temporarily kept if UI hasn't fully migrated
-    private val _dogImageUrl = MutableLiveData<String>()
-    val dogImageUrl: LiveData<String> = _dogImageUrl
-
     /** Holds the list of dog image URLs for the grid */
     private val _dogImages = MutableLiveData<List<String>>()
     val dogImages: LiveData<List<String>> = _dogImages
@@ -63,9 +59,6 @@ class DogViewModel : ViewModel() {
 
                 if (response.status == "success") {
                     _dogImages.value = response.message
-                    if (response.message.isNotEmpty()) {
-                        _dogImageUrl.value = response.message.first()
-                    }
                 } else {
                     _errorMessage.value = "API returned status: ${response.status}"
                 }
@@ -84,7 +77,6 @@ class DogViewModel : ViewModel() {
                 val response = repository.getBreedList()
                 if (response.status == "success") {
                     val breedList = mutableListOf("Random")
-                    // The API returns a Map where keys are breed names
                     breedList.addAll(response.message.keys.sorted())
                     _breeds.value = breedList
                 }
@@ -92,10 +84,5 @@ class DogViewModel : ViewModel() {
                 // If breeds fail to load, we still have "Random" by default
             }
         }
-    }
-
-    /** Legacy method kept for UI compatibility until Step 5 */
-    fun fetchRandomDogImage() {
-        fetchImages()
     }
 }
