@@ -1,9 +1,39 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme – Light (Beige) -->
     <style name="Base.Theme.MIP2" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- Primary -->
+        <item name="colorPrimary">@color/walnut</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/tan</item>
+        <item name="colorOnPrimaryContainer">@color/bark</item>
+
+        <!-- Secondary (sage accent) -->
+        <item name="colorSecondary">@color/sage</item>
+        <item name="colorOnSecondary">@color/on_primary</item>
+        <item name="colorSecondaryContainer">@color/sand</item>
+        <item name="colorOnSecondaryContainer">@color/sage_dark</item>
+
+        <!-- Background & Surface -->
+        <item name="android:colorBackground">@color/cream</item>
+        <item name="colorSurface">@color/linen</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+        <item name="colorSurfaceVariant">@color/sand</item>
+
+        <!-- Outline -->
+        <item name="colorOutline">@color/outline</item>
+
+        <!-- Error -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/on_error</item>
+
     </style>
 
     <style name="Theme.MIP2" parent="Base.Theme.MIP2" />
+
+    <!-- Rounded corners for the dog image -->
+    <style name="RoundedImageShape" parent="">
+        <item name="cornerSize">16dp</item>
+    </style>
 </resources>

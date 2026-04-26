@@ -1,5 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ── Base neutrals ── -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- ── Beige Palette ── -->
+    <!-- Cream: softest background tone -->
+    <color name="cream">#FFF8F0E5</color>
+    <!-- Linen: slightly warmer card/surface -->
+    <color name="linen">#FFEEE4D4</color>
+    <!-- Sand: mid-tone warm beige -->
+    <color name="sand">#FFD9C4A8</color>
+    <!-- Tan: deeper sand for dividers / containers -->
+    <color name="tan">#FFC4A882</color>
+    <!-- Walnut: muted warm-brown accent (primary) -->
+    <color name="walnut">#FF8B6448</color>
+    <!-- Bark: darker variant for pressed states -->
+    <color name="bark">#FF6B4A32</color>
+    <!-- Sage: muted green accent for contrast actions -->
+    <color name="sage">#FF7D9B76</color>
+    <!-- Dark Sage: pressed / secondary variant -->
+    <color name="sage_dark">#FF5A7354</color>
+    <!-- On-Primary: light cream text on walnut buttons -->
+    <color name="on_primary">#FFFDF5EC</color>
+    <!-- On-Surface: readable brown-black for body text -->
+    <color name="on_surface">#FF2E1F12</color>
+    <!-- On-Surface Variant: subdued copy on surfaces -->
+    <color name="on_surface_variant">#FF5C4033</color>
+    <!-- Outline: subtle separator line -->
+    <color name="outline">#FFBBA08A</color>
+    <!-- Error: warm brick-red that fits the palette -->
+    <color name="error">#FFB85C38</color>
+    <!-- On-Error -->
+    <color name="on_error">#FFFDF5EC</color>
+
+    <!-- ── Night/Dark variants ── -->
+    <color name="dark_surface">#FF1E150E</color>
+    <color name="dark_surface_variant">#FF2E1F12</color>
+    <color name="dark_primary">#FFD9A97C</color>
+    <color name="dark_on_primary">#FF3B2210</color>
+    <color name="dark_on_surface">#FFF0E4D4</color>
+    <color name="dark_on_surface_variant">#FFCBB49A</color>
+    <color name="dark_outline">#FF7A5C48</color>
+    <color name="dark_container">#FF3D2A1C</color>
 </resources>

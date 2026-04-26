@@ -1,7 +1,32 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme – Dark (Warm Dark Beige) -->
     <style name="Base.Theme.MIP2" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+        <!-- Primary -->
+        <item name="colorPrimary">@color/dark_primary</item>
+        <item name="colorOnPrimary">@color/dark_on_primary</item>
+        <item name="colorPrimaryContainer">@color/dark_container</item>
+        <item name="colorOnPrimaryContainer">@color/dark_primary</item>
+
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/sage</item>
+        <item name="colorOnSecondary">@color/dark_on_primary</item>
+        <item name="colorSecondaryContainer">@color/dark_container</item>
+        <item name="colorOnSecondaryContainer">@color/sage</item>
+
+        <!-- Background & Surface -->
+        <item name="android:colorBackground">@color/dark_surface</item>
+        <item name="colorSurface">@color/dark_surface_variant</item>
+        <item name="colorOnSurface">@color/dark_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/dark_on_surface_variant</item>
+        <item name="colorSurfaceVariant">@color/dark_container</item>
+
+        <!-- Outline -->
+        <item name="colorOutline">@color/dark_outline</item>
+
+        <!-- Error -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/on_error</item>
+
     </style>
 </resources>
