@@ -1,36 +1,32 @@
 package dam.a51564.mip2.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dam.a51564.mip2.repository.DogRepository
+import dam.a51564.mip2.core.repository.DogRepository
+import dam.a51564.mip2.core.state.Resource
+import dam.a51564.mip2.core.viewmodel.BaseViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel handling state for multiple dog images and breed filtering.
+ * ViewModel handling state for multiple dog images and breed filtering via the shared Core module.
  */
-class DogViewModel : ViewModel() {
+class DogViewModel : BaseViewModel() {
 
     private val repository = DogRepository()
 
     /** Holds the list of dog image URLs for the grid */
-    private val _dogImages = MutableLiveData<List<String>>()
-    val dogImages: LiveData<List<String>> = _dogImages
+    private val _dogImages = MutableStateFlow<Resource<List<String>>>(Resource.Loading)
+    val dogImages: StateFlow<Resource<List<String>>> = _dogImages.asStateFlow()
 
     /** Holds the list of available breeds loaded from the API */
-    private val _breeds = MutableLiveData<List<String>>()
-    val breeds: LiveData<List<String>> = _breeds
+    private val _breeds = MutableStateFlow<Resource<List<String>>>(Resource.Loading)
+    val breeds: StateFlow<Resource<List<String>>> = _breeds.asStateFlow()
 
     /** The currently selected breed ("Random" by default) */
-    private val _selectedBreed = MutableLiveData<String>("Random")
-    val selectedBreed: LiveData<String> = _selectedBreed
-
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String> = _errorMessage
-
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _selectedBreed = MutableStateFlow("Random")
+    val selectedBreed: StateFlow<String> = _selectedBreed.asStateFlow()
 
     init {
         fetchBreeds()
@@ -47,25 +43,20 @@ class DogViewModel : ViewModel() {
 
     /** Fetches the required images based on the currently selected breed */
     fun fetchImages() {
+        val currentBreed = _selectedBreed.value
         viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val currentBreed = _selectedBreed.value ?: "Random"
-                val response = if (currentBreed == "Random") {
-                    repository.getMultipleRandomDogs(20) // Let's fetch 20 for a nice grid
-                } else {
-                    repository.getDogsByBreed(currentBreed, 20)
-                }
+            val call = if (currentBreed == "Random") {
+                repository.getMultipleRandomDogs(20)
+            } else {
+                repository.getDogsByBreed(currentBreed, 20)
+            }
 
-                if (response.status == "success") {
-                    _dogImages.value = response.message
-                } else {
-                    _errorMessage.value = "API returned status: ${response.status}"
+            call.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> _dogImages.value = Resource.Loading
+                    is Resource.Success -> _dogImages.value = Resource.Success(resource.data.message)
+                    is Resource.Error -> _dogImages.value = Resource.Error(resource.message)
                 }
-            } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Unknown error occurred while fetching images"
-            } finally {
-                _isLoading.value = false
             }
         }
     }
@@ -73,15 +64,16 @@ class DogViewModel : ViewModel() {
     /** Fetches the full list of breeds once on startup */
     private fun fetchBreeds() {
         viewModelScope.launch {
-            try {
-                val response = repository.getBreedList()
-                if (response.status == "success") {
-                    val breedList = mutableListOf("Random")
-                    breedList.addAll(response.message.keys.sorted())
-                    _breeds.value = breedList
+            repository.getBreedList().collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> _breeds.value = Resource.Loading
+                    is Resource.Success -> {
+                        val breedList = mutableListOf("Random")
+                        breedList.addAll(resource.data.message.keys.sorted())
+                        _breeds.value = Resource.Success(breedList)
+                    }
+                    is Resource.Error -> _breeds.value = Resource.Error(resource.message)
                 }
-            } catch (e: Exception) {
-                // If breeds fail to load, we still have "Random" by default
             }
         }
     }
