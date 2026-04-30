@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import dam.a51564.mip2.compose.ui.theme.DogBrowserTheme
+import dam.a51564.mip2.compose.ui.theme.DogAppTheme
 import dam.a51564.mip2.compose.viewmodel.ComposeDogViewModel
 import dam.a51564.mip2.core.state.Resource
 
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            DogBrowserTheme {
+            DogAppTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -152,6 +152,7 @@ fun BreedSelector(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         shadowElevation = 2.dp
     ) {
         Box(modifier = Modifier.clickable { expanded = true }.padding(16.dp)) {
@@ -160,19 +161,35 @@ fun BreedSelector(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Breed: $selectedBreed", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                Text(
+                    text = "Breed: $selectedBreed", 
+                    fontSize = 16.sp, 
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown, 
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
 
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth(0.8f)
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 if (breedsState is Resource.Success) {
                     breedsState.data.forEach { breed ->
                         DropdownMenuItem(
-                            text = { Text(breed) },
+                            text = { 
+                                Text(
+                                    breed,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                ) 
+                            },
                             onClick = {
                                 onBreedSelected(breed)
                                 expanded = false
@@ -180,7 +197,10 @@ fun BreedSelector(
                         )
                     }
                 } else {
-                    DropdownMenuItem(text = { Text("Loading...") }, onClick = {})
+                    DropdownMenuItem(
+                        text = { Text("Loading...", color = MaterialTheme.colorScheme.onSurface) }, 
+                        onClick = {}
+                    )
                 }
             }
         }
