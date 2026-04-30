@@ -1,97 +1,54 @@
-# MIP2 – Dog Image Browser
+# MIP-3 Dog Image Browser (Multi-Module)
 
-## Overview
+## Project Objective
+This project demonstrates a robust **Multi-Module Android Architecture** refactored from a monolithic codebase. The goal is to separate business logic from the UI layer, enabling parallel development of legacy (XML) and modern (Compose) user interfaces.
 
-**Dog Image Browser** is an Android application developed as part of the **MIP2** assignment for the LEIM/DAM course. The app lets users fetch and display random dog images from the internet, serving as a practical introduction to AI-assisted mobile development with Kotlin.
+---
 
-## API Used
+## Module Architecture
 
-This app consumes the **[Dog CEO API](https://dog.ceo/dog-api)**, a free, open REST API that provides random dog images from hundreds of breeds.
+The project is split into three distinct modules to ensure separation of concerns:
 
-- **Endpoint:** `GET https://dog.ceo/api/breeds/image/random`
-- **Response:** JSON with an image URL and a status field.
+### 1. `:core` (The Shared Brain)
+- **Responsibility**: Contains all business logic, network configuration, and data management.
+- **Key Components**:
+    - **Retrofit Client**: Configured for the Dog CEO API.
+    - **Repositories**: `DogRepository` handles data fetching and mapping.
+    - **Resource Wrapper**: A generic sealed class used to communicate network states (Loading, Success, Error) across modules.
+    - **Shared Logic**: Holds the core data models used by both UI modules.
 
-## Features
+### 2. `:app-xml` (Legacy UI)
+- **Responsibility**: The stable, View-based implementation of the Dog Browser.
+- **Tech Stack**: XML Layouts, `RecyclerView` with Grid Layout, `Spinner` for filtering, and `ViewBinding`.
+- **Dependency**: Consumes data exclusively from the `:core` module.
 
-- Fetch and display a dynamic grid of random dog images on launch.
-- Filter the displayed dogs by specific breeds using a sleek drop-down menu.
-- Uniform, square-cropped images (1:1 ratio) gracefully handled within a `RecyclerView`.
-- Refresh button to seamlessly load a newly randomized batch of images for the selected category.
-- Modern beige materialized theme implementation.
+### 3. `:app-compose` (Modern UI)
+- **Responsibility**: A cutting-edge UI implementation using Jetpack Compose and Material 3.
+- **Tech Stack**: Pure Compose, `LazyVerticalGrid`, and `StateFlow` for reactive updates.
+- **Dependency**: Consumes data exclusively from the `:core` module.
 
-## Architecture
+---
 
-The app follows the **MVVM (Model-View-ViewModel)** pattern:
+## Compose-Exclusive Features
 
-- **Model** – Kotlin data classes representing the API response (`BreedListResponse`, `DogListResponse`).
-- **ViewModel** – Reactively handles business logic, breed filtering, and API calls via Retrofit using Coroutines and LiveData.
-- **View** – A single `MainActivity` with meticulously crafted XML layouts and dynamic grid Adapters.
+The `:app-compose` module includes several advanced features not present in the legacy module:
 
-## Tech Stack
+- **Dynamic Material 3 Theming**: Full support for system-wide **Light and Dark Mode**. It includes Android 12+ Dynamic Color support with a custom "Modern Beige" fallback palette.
+- **Refresh FAB & State Tracking**: A reactive Floating Action Button that tracks the network state and provides feedback during manual refreshes.
+- **Rich Animations**: Implements `Crossfade` transitions between states and high-performance **Scale & Fade-in** animations for grid items using `graphicsLayer`.
 
-| Layer        | Library / Tool  |
-|--------------|-----------------|
-| Language     | Kotlin          |
-| UI           | XML Views, RecyclerView |
-| Networking   | Retrofit + OkHttp |
-| Image Loading| Glide           |
-| Architecture | MVVM + LiveData |
+---
 
-## Project Structure
+## How to Run
 
-```
-MIP2/
-├── app/
-├── docs/
-│   ├── 01_overview.md
-│   ├── 02_features.md
-│   ├── 03_screens.md
-│   ├── 04_data_model.md
-│   ├── 05_navigation.md
-│   ├── 06_architecture.md
-│   ├── 07_api_usage.md
-│   ├── 08_implementation_plan.md
-│   ├── 09_feature_extensions.md
-│   └── prompts_log.md
-├── agents.md
-└── README.md
-```
+To test the different implementations, you can switch between the two application modules in Android Studio:
 
-## Getting Started
+1. Locate the **Run/Debug Configurations** dropdown in the top toolbar (next to the 'Run' icon).
+2. Select **`app-xml`** to launch the legacy View-based version.
+3. Select **`app-compose`** to launch the modern Jetpack Compose version.
+4. Click the **Run** button to deploy the selected module to your device or emulator.
 
-### Prerequisites
+---
 
-- Android Studio (Hedgehog or later recommended)
-- Android SDK 24+
-- Internet connection (for API calls)
-
-### Running the Project
-
-1. Clone or download this repository.
-2. Open the project in **Android Studio** (`File > Open > MIP2/`).
-3. Wait for Gradle to sync all dependencies.
-4. Connect an Android device or start an emulator.
-5. Click **Run ▶** (or press `Shift + F10`).
-
-## Documentation
-
-All detailed documentation lives in the `/docs` folder. Read it in order before modifying or extending the project:
-
-1. [Overview](docs/01_overview.md)
-2. [Features](docs/02_features.md)
-3. [Screens](docs/03_screens.md)
-4. [Data Model](docs/04_data_model.md)
-5. [Navigation](docs/05_navigation.md)
-6. [Architecture](docs/06_architecture.md)
-7. [API Usage](docs/07_api_usage.md)
-8. [Implementation Plan](docs/08_implementation_plan.md)
-9. [Feature Extensions](docs/09_feature_extensions.md)
-10. [Prompts Log](docs/prompts_log.md)
-
-## Validation
-
-✅ **Project Architecture Verified:** This project has been fully audited against the specifications inside `agents.md` and successfully conforms to pure MVVM standards utilizing precise Kotlin classes without Jetpack Compose usage.
-
-## License
-
-This project is for academic purposes only.
+## Design Aesthetic
+Both modules share the **'Modern Beige'** design language (Walnut/Cream palette), ensuring that the brand identity remains consistent regardless of the underlying UI framework.
