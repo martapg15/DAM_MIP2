@@ -1,27 +1,60 @@
-# 11 – UI Contract
+# 11 – UI Contract Summary
 
-## Shared State Architecture
-
-With the introduction of the `:core` module, both `:app-xml` and `:app-compose` must interact with the business logic consistently. 
-
-### ViewModel as the Single Source of Truth
-The `DogViewModel` residing in the `:core` module acts as the strict contract between the UI and the data layer. 
-
-- **State Exposure**: The ViewModel exposes its state (e.g., `dogImages`, `breeds`, `isLoading`, `errorMessage`) using reactive streams.
-  - *Current*: `LiveData` is used, which works well with XML `Observers`.
-  - *Future Migration*: These will eventually be migrated to Kotlin `StateFlow` (`MutableStateFlow`, `asStateFlow()`) to natively support Jetpack Compose's state management (`collectAsState()`) while retaining XML compatibility.
-
-### Interaction Rules
-1. **No Direct Repository Access**: UI modules must never instantiate or call `DogRepository` or Retrofit directly.
-2. **Action Dispatching**: User interactions (button clicks, spinner selections, pull-to-refresh) are dispatched to the ViewModel as explicit function calls (e.g., `viewModel.setBreed(breed)` or `viewModel.fetchImages()`).
-3. **Passive Views**: The UI layers strictly observe the exposed state and render it visually without applying business rules or complex logic.
+This document defines the strict communication protocol between the UI application modules (`:app-xml`, `:app-compose`) and the shared `:core` module.
 
 ---
 
-## UI Requirements: Dynamic Theming
+## The Resource Wrapper Pattern
 
-The `:app-compose` module must implement a modern UI contract regarding configuration changes:
+All network-bound data is exposed via a sealed class wrapper: `Resource<T>`. This ensures that the UI layers handle all possible states of an asynchronous operation consistently.
 
-- **Dynamic Reactive UI**: The Compose UI must react to system configuration changes (Dark vs. Light mode) without manual lifecycle handling.
-- **Provider Pattern**: The root of the application must be wrapped in a `MaterialTheme` provider that dynamically selects the appropriate `ColorScheme` (Light vs. Dark) based on the system's `isSystemInDarkTheme()` state.
-- **Consistent Tokens**: All UI components (Cards, Buttons, Text) must reference theme tokens (e.g., `MaterialTheme.colorScheme.primary`) rather than hardcoded hex values to ensure full compatibility with the dynamic theming system.
+### State Protocol
+- **`Resource.Loading`**: The UI must show a progress indicator (e.g., `CircularProgressIndicator` or `ProgressBar`).
+- **`Resource.Success(data)`**: The UI extracts the payload and renders the final content (e.g., Image Grid).
+- **`Resource.Error(message)`**: The UI renders a meaningful error message to the user and may provide a "Retry" action.
+
+---
+
+## Interaction via StateFlow
+
+The `:core` module provides repositories that return Kotlin `Flow<Resource<T>>`. The ViewModels then convert these into **`StateFlow`** to maintain a persistent UI state that survives configuration changes.
+
+### UI Observation Contract
+
+#### In :app-compose (Modern)
+The UI uses the `collectAsState()` extension to convert the `StateFlow` directly into a reactive Compose state:
+```kotlin
+val dogImagesState by viewModel.dogImages.collectAsState()
+
+Crossfade(targetState = dogImagesState) { state ->
+    when (state) {
+        is Resource.Loading -> ShowLoading()
+        is Resource.Success -> ShowGrid(state.data)
+        is Resource.Error -> ShowError(state.message)
+    }
+}
+```
+
+#### In :app-xml (Legacy)
+The UI uses a lifecycle-aware `collect` within the `lifecycleScope` to update View-based components:
+```kotlin
+lifecycleScope.launch {
+    repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.dogImages.collect { state ->
+            when (state) {
+                is Resource.Loading -> binding.progressBar.visibility = View.VISIBLE
+                is Resource.Success -> adapter.submitList(state.data)
+                is Resource.Error -> showErrorDialog(state.message)
+            }
+        }
+    }
+}
+```
+
+---
+
+## Action Dispatching Rules
+To maintain architectural integrity, all UI actions must follow these rules:
+1. **Unidirectional Control**: UI modules never instantiate the `DogRepository` or Retrofit services.
+2. **Event Delegation**: All user events (Breed Selection, Refresh) are delegated to the ViewModel via simple function calls (e.g., `viewModel.fetchImages()`).
+3. **Immutability**: The UI receives read-only state. Any modification to the data must go through the ViewModel's public API.
