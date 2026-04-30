@@ -1,0 +1,183 @@
+package dam.a51564.mip2.compose
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import dam.a51564.mip2.compose.ui.theme.DogBrowserTheme
+import dam.a51564.mip2.compose.viewmodel.ComposeDogViewModel
+import dam.a51564.mip2.core.state.Resource
+
+/**
+ * Main Activity for the Compose module.
+ */
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            DogBrowserTheme {
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        @OptIn(ExperimentalMaterial3Api::class)
+                        CenterAlignedTopAppBar(
+                            title = { Text("Dog Browser (Compose)", fontWeight = FontWeight.Bold) },
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    }
+                ) { innerPadding ->
+                    DogBrowserScreen(Modifier.padding(innerPadding))
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DogBrowserScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ComposeDogViewModel = viewModel()
+) {
+    val dogImagesState by viewModel.dogImages.collectAsState()
+    val breedsState by viewModel.breeds.collectAsState()
+    val selectedBreed by viewModel.selectedBreed.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+
+    Column(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        
+        // Breed Selector
+        BreedSelector(
+            breedsState = breedsState,
+            selectedBreed = selectedBreed,
+            onBreedSelected = { viewModel.setBreed(it) }
+        )
+
+        // Pull to Refresh Box
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.fetchImages(isRefreshing = true) },
+            modifier = Modifier.weight(1f)
+        ) {
+            Crossfade(targetState = dogImagesState, label = "ContentFade") { state ->
+                when (state) {
+                    is Resource.Loading -> {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    is Resource.Success -> {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(state.data) { imageUrl ->
+                                DogImageItem(imageUrl)
+                            }
+                        }
+                    }
+                    is Resource.Error -> {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "Error: ${state.message}", 
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BreedSelector(
+    breedsState: Resource<List<String>>,
+    selectedBreed: String,
+    onBreedSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp
+    ) {
+        Box(modifier = Modifier.clickable { expanded = true }.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Breed: $selectedBreed", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                if (breedsState is Resource.Success) {
+                    breedsState.data.forEach { breed ->
+                        DropdownMenuItem(
+                            text = { Text(breed) },
+                            onClick = {
+                                onBreedSelected(breed)
+                                expanded = false
+                            }
+                        )
+                    }
+                } else {
+                    DropdownMenuItem(text = { Text("Loading...") }, onClick = {})
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DogImageItem(imageUrl: String) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        modifier = Modifier.aspectRatio(1f).padding(4.dp)
+    ) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = "Dog Image",
+            modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp)),
+            contentScale = ContentScale.Crop
+        )
+    }
+}
