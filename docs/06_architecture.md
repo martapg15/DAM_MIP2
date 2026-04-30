@@ -1,8 +1,18 @@
 # 06 – Architecture
 
+## Multi-Module Architecture
+
+The application is being refactored into a three-module architecture to separate UI from shared business logic:
+
+1. **`:core` Module**: An Android Library module that houses the Retrofit client, data models, the `DogRepository`, and the shared `DogViewModel`. It does not contain any UI components.
+2. **`:app-xml` Module**: The legacy Android application module containing the XML-based UI (`MainActivity`, `activity_main.xml`, `DogImageAdapter`). It depends on the `:core` module for its data.
+3. **`:app-compose` Module**: A modern Android application module that builds its UI entirely using Jetpack Compose. It also depends on the `:core` module.
+
+---
+
 ## Pattern: MVVM (Model-View-ViewModel)
 
-The Dog Image Browser follows the **MVVM** architectural pattern as recommended by Google for Android development. This separates the application into three distinct layers with strictly defined responsibilities.
+The Dog Image Browser follows the **MVVM** architectural pattern as recommended by Google for Android development. This separates the application into distinct layers with strictly defined responsibilities.
 
 ---
 
