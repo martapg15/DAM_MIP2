@@ -18,6 +18,7 @@ This document defines the **step-by-step implementation order** for refactoring 
 
 ## Step 4 – Implementing :app-compose with the Compose-exclusive feature
 - Build the UI purely in Jetpack Compose inside the `:app-compose` module.
+- Implement **Dynamic Material 3 Theming** (Light/Dark mode support).
 - Introduce Compose-exclusive features like Pull-to-Refresh and rich animations.
 
 ## Step 5 – Final testing and project audit

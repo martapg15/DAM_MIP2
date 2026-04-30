@@ -142,6 +142,21 @@ com.example.mip2/
 
 ---
 
+## Theming Strategy
+
+The Dog Image Browser utilizes a unified **'Modern Beige'** design language across both UI modules to ensure a consistent brand identity while leveraging platform-specific capabilities.
+
+### Shared Design Language
+- **Primary Color (Walnut)**: `#FF8B6448`
+* **Background Color (Cream)**: `#FFF8F0E5`
+- **Typography**: Material Design 3 type scales.
+
+### Implementation Specifics
+- **:app-xml (Static)**: Uses standard XML resources (`themes.xml`, `colors.xml`) inheriting from `Theme.Material3.DayNight.NoActionBar`.
+- **:app-compose (Dynamic)**: Implements a fully dynamic **Material 3 Theming** system. It automatically reacts to the system's **Light/Dark Mode** settings using the `MaterialTheme` provider and custom `ColorScheme` definitions.
+
+---
+
 ## Key Principles
 
 | Principle | Application |
