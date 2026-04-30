@@ -70,4 +70,19 @@ Reviewed the repository for strict Kotlin UI, MVVM enforcement and Documentation
 **Prompt used:**
 `The implementation of the Breed Filter and Grid Layout extension is finished. Before I make my final project commit, please perform a comprehensive Project Clean-Up: Code Audit... Resource Audit... Architecture Check... Update Log...`
 **Result:**
-Safely removed the legacy `DogResponse` model entirely, stripped out unused string resources and endpoints, explicitly verified MVVM encapsulation rules, and removed legacy fallback logic from the `DogViewModel`. Added this final prompt to complete the session log.
+Safely removed the legacy `DogResponse` model entirely, stripped out unused string resources and endpoints, explicitly verified MVVM encapsulation rules, and removed legacy fallback logic from the `DogViewModel`.
+
+## Prompt 11
+**Goal:** Modularize the project and stabilize the build environment for SDK 35/36.
+**Prompt used:**
+`modularize this project into three modules: :core, :app-xml, and :app-compose. Ensure everything is using the same versions and that they are stable release channels compatible with SDK 35.`
+**Result:**
+Successfully decoupled the business logic into `:core`, maintained the legacy View-based UI in `:app-xml`, and implemented a modern Material 3/Compose UI in `:app-compose`. Resolved critical `jlink`, `compileSdk`, and `material3` version conflicts by standardizing on Java 17 toolchains and the Compose 2024.09.00 BOM.
+
+## Prompt 12
+**Goal:** Fix network connectivity and add final UI polish (Animations/Theme harmonization).
+**Prompt used:**
+`Ok so now both app-xml and app-compose run just fine, but when im on inside the app both are giving me network error. Fix it please. ... perform a comprehensive review... Code Clean-up... Feature Verification...`
+**Result:**
+Identified and corrected the `BASE_URL` in `:core` and added missing `INTERNET` permissions to `:app-compose`. Implemented rich scale-and-fade animations for grid items and harmonized the "Modern Beige" theme across both UI modules. Verified compliance with all `/docs` requirements.
+

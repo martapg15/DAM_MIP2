@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -188,15 +189,35 @@ fun BreedSelector(
 
 @Composable
 fun DogImageItem(imageUrl: String) {
+    var visible by remember { mutableStateOf(false) }
+    val scale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (visible) 1f else 0.8f,
+        animationSpec = androidx.compose.animation.core.spring(dampingRatio = 0.6f),
+        label = "ScaleAnimation"
+    )
+    val alpha by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        label = "FadeAnimation"
+    )
+    
+    LaunchedEffect(Unit) {
+        visible = true
+    }
+
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        modifier = Modifier.aspectRatio(1f).padding(4.dp)
+        modifier = Modifier
+            .aspectRatio(1f)
+            .padding(4.dp)
+            .graphicsLayer(scaleX = scale, scaleY = scale, alpha = alpha)
     ) {
         AsyncImage(
             model = imageUrl,
             contentDescription = "Dog Image",
-            modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp)),
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(16.dp)),
             contentScale = ContentScale.Crop
         )
     }
