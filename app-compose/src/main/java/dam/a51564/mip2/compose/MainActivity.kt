@@ -14,11 +14,13 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -78,12 +80,7 @@ fun DogBrowserScreen(
             onBreedSelected = { viewModel.setBreed(it) }
         )
 
-        // Pull to Refresh Box
-        PullToRefreshBox(
-            isRefreshing = isRefreshing,
-            onRefresh = { viewModel.fetchImages(isRefreshing = true) },
-            modifier = Modifier.weight(1f)
-        ) {
+        Box(modifier = Modifier.weight(1f)) {
             Crossfade(targetState = dogImagesState, label = "ContentFade") { state ->
                 when (state) {
                     is Resource.Loading -> {
@@ -113,6 +110,29 @@ fun DogBrowserScreen(
                             )
                         }
                     }
+                }
+            }
+
+            // Floating Refresh Button (Reliable alternative to Pull-to-Refresh)
+            SmallFloatingActionButton(
+                onClick = { viewModel.fetchImages(isRefreshing = true) },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(24.dp),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                if (isRefreshing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refresh"
+                    )
                 }
             }
         }
