@@ -1,10 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "dam.a51564.mip2.core"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -21,9 +22,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
