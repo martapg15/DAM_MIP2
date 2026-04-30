@@ -1,17 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "dam.a51564.mip2"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    namespace = "dam.a51564.mip2.compose"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "dam.a51564.mip2"
+        applicationId = "dam.a51564.mip2.compose"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -33,32 +31,25 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
+    implementation(project(":core"))
+
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.activity.compose)
 
-    // Retrofit + Gson
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
+    val composeBom = platform(libs.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
 
-    // OkHttp Logging
-    implementation(libs.okhttp.logging)
-
-    // Glide
-    implementation(libs.glide)
-
-    // Coroutines
-    implementation(libs.kotlinx.coroutines.android)
-
-    // Lifecycle ViewModel + LiveData
-    implementation(libs.lifecycle.viewmodel.ktx)
-    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
